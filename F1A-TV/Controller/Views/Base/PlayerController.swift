@@ -11,6 +11,9 @@ import AVKit
 class PlayerController: NSObject, AVPlayerViewControllerDelegate, StreamEntitlementLoadedProtocol {
     static let instance = PlayerController()
     
+    var playFromStart = false
+    var playerItem = PlayerItem()
+    
     var fullscreenPlayerDismissedProtocol: FullscreenPlayerDismissedProtocol?
     
     override init() {
@@ -31,7 +34,9 @@ class PlayerController: NSObject, AVPlayerViewControllerDelegate, StreamEntitlem
         }
     }
     
-    func playStream(contentId: String) {
+    func playStream(contentId: String, playFromStart: Bool? = false) {
+        self.playFromStart = playFromStart ?? false
+        
         var contentUrl = contentId
         if(!contentUrl.starts(with: "CONTENT")){
             contentUrl = "CONTENT/PLAY?contentId=" + contentId
@@ -40,17 +45,21 @@ class PlayerController: NSObject, AVPlayerViewControllerDelegate, StreamEntitlem
     }
     
     func didLoadStreamEntitlement(playerId: String, streamEntitlement: StreamEntitlementDto) {
-        if let url = URL(string: streamEntitlement.url) {
-            self.openPlayer(url: url)
-        }
-    }
-    
-    func openPlayer(url: URL) {
-        let playerAsset = AVAsset(url: url)
-        let playerItem = AVPlayerItem(asset: playerAsset)
-        let player = AVPlayer(playerItem: playerItem)
+        var localPlayerItem = PlayerItem()
         
-        self.openPlayer(player: player)
+        localPlayerItem.player = FairPlayer()
+        localPlayerItem.player?.playStream(streamEntitlement: streamEntitlement)
+        localPlayerItem.playerAsset = localPlayerItem.player?.makeFairPlayReady()
+        localPlayerItem.playerItem = AVPlayerItem(asset: localPlayerItem.playerAsset ?? AVAsset())
+        localPlayerItem.player?.replaceCurrentItem(with: localPlayerItem.playerItem)
+        
+        if(self.playFromStart) {
+            localPlayerItem.player?.seek(to: CMTimeMakeWithSeconds(Float64(1), preferredTimescale: 1))
+        }
+        
+        self.playerItem = localPlayerItem
+        
+        self.openPlayer(player: localPlayerItem.player ?? AVPlayer())
     }
     
     func openPlayer(player: AVPlayer, fullscreenPlayerDismissedProtocol: FullscreenPlayerDismissedProtocol? = nil) {
@@ -59,12 +68,6 @@ class PlayerController: NSObject, AVPlayerViewControllerDelegate, StreamEntitlem
         let playerViewController = AVPlayerViewController()
         
         playerViewController.player = player
-        
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
-        } catch(let error) {
-            print(error.localizedDescription)
-        }
         
         playerViewController.delegate = self
         playerViewController.allowsPictureInPicturePlayback = true

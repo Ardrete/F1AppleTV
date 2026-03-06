@@ -17,6 +17,7 @@ enum ContainerLayoutType: CaseIterable {
     case HorizontalThumbnail
     case ContentItem
     case Schedule
+    case VerticalSimplePoster
     
     init() {
         self = .Unknown
@@ -58,7 +59,10 @@ enum ContainerLayoutType: CaseIterable {
             return "CONTENT_ITEM"
             
         case .Schedule:
-            return "schedule"
+            return "interactive_schedule"
+            
+        case .VerticalSimplePoster:
+            return "vertical_simple_poster"
             
         }
     }

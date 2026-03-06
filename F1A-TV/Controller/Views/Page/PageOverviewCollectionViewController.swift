@@ -79,7 +79,7 @@ class PageOverviewCollectionViewController: BaseCollectionViewController, UIColl
             
             return heroSection
             
-        case .HorizontalThumbnail, .VerticalThumbnail:
+        case .HorizontalThumbnail, .VerticalThumbnail, .VerticalSimplePoster:
             var thumbnailSection = ContentSection()
             
             thumbnailSection.layoutType = ContainerLayoutType.fromIdentifier(identifier: contentContainer.layout ?? "")
@@ -275,7 +275,7 @@ class PageOverviewCollectionViewController: BaseCollectionViewController, UIColl
             }
             
             //Play the video
-            if(!CredentialHelper.instance.isLoginInformationCached() || CredentialHelper.instance.getUserInfo().authData.subscriptionStatus != "active"){
+            if(!CredentialHelper.instance.isLoginInformationCached() || CredentialHelper.instance.getDeviceRegistration().data.subscriptionStatus != "active"){
                 UserInteractionHelper.instance.showError(title: "account_no_subscription_title".localizedString, message: "account_no_subscription_message".localizedString)
                 return
             }
@@ -314,91 +314,122 @@ class PageOverviewCollectionViewController: BaseCollectionViewController, UIColl
     }
     
     func didLoadVideo(contentVideo: ResultObjectDto) {
-        if(!CredentialHelper.instance.isLoginInformationCached() || CredentialHelper.instance.getUserInfo().authData.subscriptionStatus != "active"){
+        if(!CredentialHelper.instance.isLoginInformationCached() || CredentialHelper.instance.getDeviceRegistration().data.subscriptionStatus != "active"){
             UserInteractionHelper.instance.showError(title: "account_no_subscription_title".localizedString, message: "account_no_subscription_message".localizedString)
             return
         }
         
         if let container = contentVideo.containers?.first {
-            if(container.metadata?.additionalStreams?.isEmpty ?? true) {
-                if let id = container.metadata?.contentId {
-                    PlayerController.instance.playStream(contentId: String(id))
-                    return
-                }
+            if(container.metadata?.contentSubtype == "LIVE") {
+                print("Is Live")
+                
+                let alertController = UIAlertController(title: "stream_start_live_or_from_start_title".localizedString, message: "stream_start_live_or_from_start_message".localizedString, preferredStyle: .alert)
+                alertController.addAction(UIAlertAction(title: "stream_start_live_or_from_start_live".localizedString, style: .default, handler: { (UIAlertAction) in
+                    self.prepareToStartStream(container: container, playFromStart: false)
+                }))
+                
+                alertController.addAction(UIAlertAction(title: "stream_start_live_or_from_start_start".localizedString, style: .default, handler: { (UIAlertAction) in
+                    self.prepareToStartStream(container: container, playFromStart: true)
+                }))
+                
+                self.present(alertController, animated: true)
+                
+                return
             }
             
-            var mainChannelsSection = ContentSection()
-            mainChannelsSection.title = "main_channels_title".localizedString
+            print("Is not Live")
             
-            var driverChannelsSection = ContentSection()
-            driverChannelsSection.title = "driver_channels_title".localizedString
+            prepareToStartStream(container: container)
+        }
+    }
+    
+    func prepareToStartStream(container: ContainerDto, playFromStart: Bool? = false) {
+        if(container.metadata?.additionalStreams?.isEmpty ?? true) {
+            if let id = container.metadata?.contentId {
+                PlayerController.instance.playStream(contentId: String(id), playFromStart: playFromStart)
+                return
+            }
+        }
+        
+        var mainChannelsSection = ContentSection()
+        mainChannelsSection.title = "main_channels_title".localizedString
+        
+        var driverChannelsSection = ContentSection()
+        driverChannelsSection.title = "driver_channels_title".localizedString
+        
+        var channelItems = [ContentItem]()
+        
+        //Add the main feed manually
+        var mainFeedMetadata = container.metadata
+        mainFeedMetadata?.title = "international_feed_title".localizedString
+        mainFeedMetadata?.emfAttributes?.videoType = ""
+        mainFeedMetadata?.additionalStreams = nil
+        mainFeedMetadata?.channelType = .MainFeed
+        let mainFeedChannel = ContentItem(objectType: .Video, container: ContainerDto(layout: "CONTENT_ITEM", actions: nil, properties: container.properties, metadata: mainFeedMetadata, bundles: nil, categories: nil, platformVariants: container.platformVariants, retrieveItems: nil, contentId: container.metadata?.contentId ?? 0, suggest: container.suggest, platformName: container.platformName, eventName: nil, events: nil, user: container.user))
+        channelItems.append(mainFeedChannel)
+        
+        for additionalChannel in container.metadata?.additionalStreams ?? [AdditionalStreamDto]() {
+            var additionalChannelMetadata = container.metadata
+            additionalChannelMetadata?.emfAttributes?.videoType = ""
+            additionalChannelMetadata?.pictureUrl = nil
+            additionalChannelMetadata?.additionalStreams = [additionalChannel]
             
-            var channelItems = [ContentItem]()
-            
-            //Add the main feed manually
-            var mainFeedMetadata = container.metadata
-            mainFeedMetadata?.title = "main_feed_title".localizedString
-            mainFeedMetadata?.emfAttributes?.videoType = ""
-            mainFeedMetadata?.additionalStreams = nil
-            mainFeedMetadata?.channelType = .MainFeed
-            let mainFeedChannel = ContentItem(objectType: .Video, container: ContainerDto(layout: "CONTENT_ITEM", actions: nil, properties: container.properties, metadata: mainFeedMetadata, bundles: nil, categories: nil, platformVariants: container.platformVariants, retrieveItems: nil, contentId: container.metadata?.contentId ?? 0, suggest: container.suggest, platformName: container.platformName, eventName: nil, events: nil, user: container.user))
-            channelItems.append(mainFeedChannel)
-            
-            for additionalChannel in container.metadata?.additionalStreams ?? [AdditionalStreamDto]() {
-                var additionalChannelMetadata = container.metadata
-                additionalChannelMetadata?.emfAttributes?.videoType = ""
-                additionalChannelMetadata?.pictureUrl = nil
-                additionalChannelMetadata?.additionalStreams = [additionalChannel]
-                
-                //Extract the other main channels and give them a better name and prepare the driver channels
-                switch additionalChannel.type {
-                case "additional":
-                    switch additionalChannel.title {
-                    case "TRACKER":
-                        additionalChannelMetadata?.title = "tracker_feed_title".localizedString
-                        
-                    case "PIT LANE":
-                        additionalChannelMetadata?.title = "pit_lane_feed_title".localizedString
-                        
-                    case "DATA":
-                        additionalChannelMetadata?.title = "data_feed_title".localizedString
-                        
-                    default:
-                        additionalChannelMetadata?.title = additionalChannel.title
-                    }
+            //Extract the other main channels and give them a better name and prepare the driver channels
+            switch additionalChannel.type {
+            case "additional":
+                switch additionalChannel.title {
+                case "TRACKER":
+                    additionalChannelMetadata?.title = "tracker_feed_title".localizedString
                     
-                    additionalChannelMetadata?.channelType = .AdditionalFeed
+                case "PIT LANE":
+                    additionalChannelMetadata?.title = "pit_lane_feed_title".localizedString
                     
-                    let additionalFeedChannel = ContentItem(objectType: .Video, container: ContainerDto(layout: "CONTENT_ITEM", actions: nil, properties: container.properties, metadata: additionalChannelMetadata, bundles: nil, categories: nil, platformVariants: container.platformVariants, retrieveItems: nil, contentId: container.metadata?.contentId ?? 0, suggest: container.suggest, platformName: container.platformName, eventName: nil, events: nil, user: container.user))
-                    channelItems.append(additionalFeedChannel)
+                case "DATA":
+                    additionalChannelMetadata?.title = "data_feed_title".localizedString
                     
-                case "obc":
-                    var driverName = (additionalChannel.driverFirstName ?? "") + " " + (additionalChannel.driverLastName ?? "")
+                case "INTERNATIONAL":
+                    //additionalChannelMetadata?.title = "international_feed_title".localizedString
+                    continue
                     
-                    if(CredentialHelper.getPlayerSettings().showFunNames) {
-                        let alternateUniverseDriver = AlternateUniverseDrivers.fromOriginalName(originalName: driverName)
-                        if(alternateUniverseDriver != .None) {
-                            driverName = alternateUniverseDriver.getAlternateName()
-                        }
-                    }
-                    
-                    additionalChannelMetadata?.title = driverName
-                    
-                    additionalChannelMetadata?.channelType = .OnBoardCamera
-                    
-                    let additionalFeedChannel = ContentItem(objectType: .Video, container: ContainerDto(layout: "CONTENT_ITEM", actions: nil, properties: container.properties, metadata: additionalChannelMetadata, bundles: nil, categories: nil, platformVariants: container.platformVariants, retrieveItems: nil, contentId: container.metadata?.contentId ?? 0, suggest: container.suggest, platformName: container.platformName, eventName: nil, events: nil, user: container.user))
-                    channelItems.append(additionalFeedChannel)
+                case "F1 LIVE":
+                    additionalChannelMetadata?.title = "f1_live_feed_title".localizedString
                     
                 default:
-                    print("What even is this?")
+                    additionalChannelMetadata?.title = additionalChannel.title
                 }
+                
+                additionalChannelMetadata?.channelType = .AdditionalFeed
+                
+                let additionalFeedChannel = ContentItem(objectType: .Video, container: ContainerDto(layout: "CONTENT_ITEM", actions: nil, properties: container.properties, metadata: additionalChannelMetadata, bundles: nil, categories: nil, platformVariants: container.platformVariants, retrieveItems: nil, contentId: container.metadata?.contentId ?? 0, suggest: container.suggest, platformName: container.platformName, eventName: nil, events: nil, user: container.user))
+                channelItems.append(additionalFeedChannel)
+                
+            case "obc":
+                var driverName = (additionalChannel.driverFirstName ?? "") + " " + (additionalChannel.driverLastName ?? "")
+                
+                if(CredentialHelper.getPlayerSettings().showFunNames) {
+                    let alternateUniverseDriver = AlternateUniverseDrivers.fromOriginalName(originalName: driverName)
+                    if(alternateUniverseDriver != .None) {
+                        driverName = alternateUniverseDriver.getAlternateName()
+                    }
+                }
+                
+                additionalChannelMetadata?.title = driverName
+                
+                additionalChannelMetadata?.channelType = .OnBoardCamera
+                
+                let additionalFeedChannel = ContentItem(objectType: .Video, container: ContainerDto(layout: "CONTENT_ITEM", actions: nil, properties: container.properties, metadata: additionalChannelMetadata, bundles: nil, categories: nil, platformVariants: container.platformVariants, retrieveItems: nil, contentId: container.metadata?.contentId ?? 0, suggest: container.suggest, platformName: container.platformName, eventName: nil, events: nil, user: container.user))
+                channelItems.append(additionalFeedChannel)
+                
+            default:
+                print("What even is this?")
             }
-            
-            let playerVc = self.getViewControllerWith(viewIdentifier: ConstantsUtil.playerCollectionViewController) as! PlayerCollectionViewController
-            playerVc.initialize(channelItems: channelItems.sorted(by: {($0.container.metadata?.channelType ?? ChannelType()).getIdentifier() < ($1.container.metadata?.channelType ?? ChannelType()).getIdentifier()}).sorted(by: {($0.container.metadata?.additionalStreams?.first?.racingNumber ?? 0) < ($1.container.metadata?.additionalStreams?.first?.racingNumber ?? 0)}))
-            
-            self.presentFullscreen(viewController: playerVc)
         }
+        
+        let playerVc = self.getViewControllerWith(viewIdentifier: ConstantsUtil.playerCollectionViewController) as! PlayerCollectionViewController
+        let playerChannelItems = self.sortDriverChannels(channelItems: channelItems).sorted(by: {($0.container.metadata?.channelType ?? ChannelType()).getIdentifier() < ($1.container.metadata?.channelType ?? ChannelType()).getIdentifier()})
+        playerVc.initialize(channelItems: playerChannelItems, playFromStart: playFromStart)
+        
+        self.presentFullscreen(viewController: playerVc)
     }
     
     @objc func viewAllPressed(_ button: UIButton) {
@@ -537,5 +568,15 @@ class PageOverviewCollectionViewController: BaseCollectionViewController, UIColl
         }
         
         return height
+    }
+    
+    func sortDriverChannels(channelItems: [ContentItem]) -> [ContentItem] {
+        switch CredentialHelper.getPlayerSettings().driverChannelSorting {
+        case .DriverNumber:
+            return channelItems.sorted(by: {($0.container.metadata?.additionalStreams?.first?.racingNumber ?? 0) < ($1.container.metadata?.additionalStreams?.first?.racingNumber ?? 0)})
+            
+        case .Alphabetical:
+            return channelItems.sorted(by: {($0.container.metadata?.additionalStreams?.first?.title ?? "") < $1.container.metadata?.additionalStreams?.first?.title ?? ""})
+        }
     }
 }

@@ -36,22 +36,13 @@
 
 //Settings
 "settings_title" = "Einstellungen";
-"settings_cdn_header" = "Content Delivery Network";
-"settings_cdn_footer" = "Falls der Stream stockt oder die Qualität schlecht ist, kannst du ein anderes CDN ausprobieren.";
-"settings_cdn_big_screen_hls_provider_displayname" = "Akamai (Standard)";
-"settings_cdn_web_hls_provider_displayname" = "CloudFront";
-
-"settings_language_header" = "Inhaltssprache";
-"settings_language_footer" = "*Auf tvOS 15 bestimmt dies auch die Audiosprache. Im Player ist momentan keine Selektion möglich";
-"settings_language_english_displayname" = "Englisch";
-"settings_language_german_displayname" = "Deutsch";
-"settings_language_spanish_displayname" = "Spanisch";
-"settings_language_french_displayname" = "Französisch";
-"settings_language_dutch_displayname" = "Niederländisch";
-"settings_language_portuguese_displayname" = "Portugiesisch";
 
 "settings_show_fun_names_title" = "Zeigt Namen aus einem Paralleluniversum, in welchem der Sport Formel Juan genannt wird";
 "settings_fun_header" = "Nur für r/FormulaDank User";
+
+"settings_driver_channel_sorting_title" = "Sortierung der Fahrerkameras";
+"settings_driver_channel_sorting_driver_number_title" = "Fahrernummer";
+"settings_driver_channel_sorting_alphabetical_title" = "Alphabetisch";
 
 //Pages
 "view_all" = "Alle ansehen";
@@ -66,7 +57,13 @@
 "pit_lane_feed_title" = "Pit Lane";
 "tracker_feed_title" = "Tracker Feed";
 "data_feed_title" = "Data Feed";
+"international_feed_title" = "International Feed";
+"f1_live_feed_title" = "F1 Live";
 
 //Player
 "multiplayer_no_channels_add_first" = "Kein Kanal gewählt\nWähle einen Kanal";
 "multiplayer_channel_selector_add_channel_title" = "Kanal hinzufügen";
+"stream_start_live_or_from_start_title" = "Live Session";
+"stream_start_live_or_from_start_message" = "Vom Start ansehen oder Live weiterschauen";
+"stream_start_live_or_from_start_live" = "Live fortsetzen";
+"stream_start_live_or_from_start_start" = "Vom Start";
