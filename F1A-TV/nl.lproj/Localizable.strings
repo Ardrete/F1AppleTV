@@ -37,22 +37,13 @@
 
 //Settings
 "settings_title" = "Instellingen";
-"settings_cdn_header" = "Content Delivery Network";
-"settings_cdn_footer" = "Als u buffering of slechte kwaliteit ervaart bij het ene CDN, kunt u het andere uitproberen.";
-"settings_cdn_big_screen_hls_provider_displayname" = "Akamai (Standaard)";
-"settings_cdn_web_hls_provider_displayname" = "CloudFront";
-
-"settings_language_header" = "Inhoud taal";
-"settings_language_footer" = "*Bij gebruik van tvOS 15 selecteert dit ook de audiotaal. Momenteel geen selectie in de speler beschikbaar";
-"settings_language_english_displayname" = "Engels";
-"settings_language_german_displayname" = "Duitse";
-"settings_language_spanish_displayname" = "Spaans";
-"settings_language_french_displayname" = "Frans";
-"settings_language_dutch_displayname" = "Nederlands";
-"settings_language_portuguese_displayname" = "Portugees";
 
 "settings_show_fun_names_title" = "Toon namen uit een parallel universum waar de sport Formula Juan heet";
 "settings_fun_header" = "Alleen voor r/FormulaDank-gebruikers";
+
+"settings_driver_channel_sorting_title" = "Selecteer waarop de driverkanalen moeten worden gesorteerd";
+"settings_driver_channel_sorting_driver_number_title" = "Bestuurdersnummer";
+"settings_driver_channel_sorting_alphabetical_title" = "Alfabetisch";
 
 //Pages
 "view_all" = "Bekijk alles";
@@ -67,7 +58,13 @@
 "pit_lane_feed_title" = "Pit Lane";
 "tracker_feed_title" = "Tracker uitzending";
 "data_feed_title" = "Data uitzending";
+"international_feed_title" = "International uitzending";
+"f1_live_feed_title" = "F1 Live";
 
 //Player
 "multiplayer_no_channels_add_first" = "Geen kanaal geselecteerd\nSelecteer een kanaal";
 "multiplayer_channel_selector_add_channel_title" = "Kanaal toevoegen";
+"stream_start_live_or_from_start_title" = "Live sessie";
+"stream_start_live_or_from_start_message" = "Kijk vanaf het begin of ga verder Live";
+"stream_start_live_or_from_start_live" = "Doorgaan met Live";
+"stream_start_live_or_from_start_start" = "Van start";
