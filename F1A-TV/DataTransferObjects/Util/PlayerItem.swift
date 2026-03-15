@@ -13,9 +13,9 @@ struct PlayerItem: Identifiable {
     var contentItem: ContentItem
     var entitlement: StreamEntitlementDto?
     var position: Int
-    var playerAsset: AVAsset?
+    var playerAsset: AVURLAsset?
     var playerItem: AVPlayerItem?
-    var player: AVPlayer?
+    var player: FairPlayer?
     
     init() {
         self.contentItem = ContentItem()

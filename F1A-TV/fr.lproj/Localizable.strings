@@ -36,22 +36,13 @@
 
 //Settings
 "settings_title" = "Paramètres";
-"settings_cdn_header" = "Content Delivery Network";
-"settings_cdn_footer" = "Si vous rencontrez une mise en mémoire tampon ou une mauvaise qualité avec un CDN, vous pouvez essayer l'autre.";
-"settings_cdn_big_screen_hls_provider_displayname" = "Akamai (Défaut)";
-"settings_cdn_web_hls_provider_displayname" = "CloudFront";
-
-"settings_language_header" = "Langue du contenu";
-"settings_language_footer" = "*Lorsque vous utilisez tvOS 15, cela sélectionne également la langue audio. Aucune sélection dans le lecteur disponible pour le moment";
-"settings_language_english_displayname" = "Anglais";
-"settings_language_german_displayname" = "Allemand";
-"settings_language_spanish_displayname" = "Espanol";
-"settings_language_french_displayname" = "Français";
-"settings_language_dutch_displayname" = "Néerlandais";
-"settings_language_portuguese_displayname" = "Portugais";
 
 "settings_show_fun_names_title" = "Afficher les noms d'un univers parallèle où le sport s'appelle Formule Juan";
 "settings_fun_header" = "Uniquement pour les utilisateurs de r/FormulaDank";
+
+"settings_driver_channel_sorting_title" = "Sélectionnez par quoi les canaux du pilote doivent être triés";
+"settings_driver_channel_sorting_driver_number_title" = "Numéro de conducteur";
+"settings_driver_channel_sorting_alphabetical_title" = "Alphabétique";
 
 //Pages
 "view_all" = "Tout voir";
@@ -66,7 +57,13 @@
 "pit_lane_feed_title" = "Pit Lane";
 "tracker_feed_title" = "Tracker Feed";
 "data_feed_title" = "Data Feed";
+"international_feed_title" = "International Feed";
+"f1_live_feed_title" = "F1 Live";
 
 //Player
 "multiplayer_no_channels_add_first" = "Aucun canal sélectionné\nSélectionnez une chaîne";
 "multiplayer_channel_selector_add_channel_title" = "Ajouter une chaîne";
+"stream_start_live_or_from_start_title" = "Séance en direct";
+"stream_start_live_or_from_start_message" = "Regardez depuis le début ou continuez en direct";
+"stream_start_live_or_from_start_live" = "Continuer en direct";
+"stream_start_live_or_from_start_start" = "Depuis le début";
